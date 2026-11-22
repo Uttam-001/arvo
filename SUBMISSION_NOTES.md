@@ -2,8 +2,10 @@
 
 - **Repository** [Uttam-001/frontdesk-remake](https://github.com/Uttam-001/frontdesk-remake)
 - **Local setup** [README](README.md)
-- **Live application** Pending Vercel deployment.
+- **Live application** [Frontdesk on Vercel](https://frontdesk-remake.vercel.app)
 
 The frontend production build, MySQL migrations and seed, demo sign-in for both roles, and automated SLA and MySQL tests passed locally. The tests cover concurrent claims, protection of internal notes, immutable audit history, waiting and auto-close, and the customer reopening window.
 
-The public deployment and one-week availability check remain incomplete. Vercel CLI authentication and a hosted MySQL database that permits triggers are required. Customer access links are shared by agents, and demo users sign in through a role picker.
+The Vercel deployment was verified on 23 November 2026 against Railway MySQL over TLS. The deployed check covered database health, both demo roles, ticket creation, public replies, private note isolation, and resolution. The Railway schema was initialized from the checked-in migration SQL and its checksum was recorded. All four history triggers are installed.
+
+The full one-week availability period remains to be observed after submission. Agents share customer links manually, and demo users sign in through a role picker.

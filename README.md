@@ -116,7 +116,7 @@ Tests leave fixture records in the disposable database because the history trigg
 
 ## Hiring test submission
 
-- **Live URL** Pending Vercel deployment.
+- **Live URL** [Frontdesk on Vercel](https://frontdesk-remake.vercel.app)
 - **Repository** [Uttam-001/frontdesk-remake](https://github.com/Uttam-001/frontdesk-remake)
 - **Completion note** [SUBMISSION_NOTES.md](SUBMISSION_NOTES.md)
 - **Assessment coverage** [REQUIREMENTS_TRACE.md](REQUIREMENTS_TRACE.md)
