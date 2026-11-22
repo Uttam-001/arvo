@@ -2,6 +2,8 @@
 
 Arvo is a full-stack customer support ticket manager built for a hiring assignment. It supports ticket ownership and assignment, public replies, private notes, immutable audit history, and business-hour SLA tracking.
 
+Open the live demo and select **Meera** for the support lead view, or choose any of the nine support agents. [Arvo live demo](https://frontdesk-support.vercel.app/)
+
 **Demo data.** The seed creates fictional accounts and customers for reviewers. It leaves the ticket queue empty. Use fictional ticket subjects, messages, and contact details when trying the app.
 
 ## Stack
@@ -49,6 +51,13 @@ To check the production build locally, stop the development API, run `npm run bu
 
 `npm run db:seed` creates one support lead, nine agents, 26 fictional customers, and sample holidays. The seed upserts demo accounts and customers, so rerun it only on a demo database. To try the full workflow, create a fictional ticket from the agent dashboard and open its customer link in a separate browser session.
 
+### Reviewer walkthrough
+
+1. Sign in as **Meera**, the support lead, to assign a ticket or manage the **Customers** directory. Open a ticket to review the **Conversation** or **Activity log**.
+2. Choose **Public reply** to respond to the customer or **Internal note** to record a team-only update. The two compose modes keep separate drafts.
+3. In **Customers**, choose **Remove** beside an entry and confirm. The directory entry is removed, and existing tickets and their audit history stay available.
+4. Use **Log out** in the Arvo Support sidebar to switch demo roles.
+
 ## Database migrations
 
 `npm run db:migrate` uses `prisma migrate deploy` to apply the committed MySQL migration. The schema covers agents, sessions, customers, tickets, messages, ticket events, SLA pauses, and holidays. The migration installs UPDATE and DELETE triggers on messages and ticket events. Use the committed migration to create those triggers.
@@ -94,7 +103,7 @@ Run these from the repository root.
 
 ## Tests and test data
 
-`npm test` runs the SLA and application tests. MySQL integration cases are skipped by default. They cover concurrent claims, customer visibility, audit immutability, priority changes, waiting, auto-close, and reopening.
+`npm test` runs the SLA and application tests. MySQL integration cases are skipped by default. The full suite covers concurrent claims, customer visibility, customer removal permissions and ticket retention, audit immutability, priority changes, waiting, auto-close, and reopening.
 
 To include the integration cases, create a separate disposable MySQL database, give your test account access to that schema, and set `DATABASE_URL` to it in an isolated terminal using an environment variable or secret manager. Verify that the URL points to the disposable schema before running the commands.
 
@@ -117,7 +126,7 @@ Tests leave fixture records in the disposable database because the history trigg
 ## Hiring test submission
 
 - **Live URL** [Arvo on Vercel](https://frontdesk-support.vercel.app)
-- **Repository** [Uttam-001/frontdesk](https://github.com/Uttam-001/frontdesk)
+- **Repository** [Uttam-001/arvo](https://github.com/Uttam-001/arvo)
 - **Completion note** [SUBMISSION_NOTES.md](SUBMISSION_NOTES.md)
 - **Assessment coverage** [REQUIREMENTS_TRACE.md](REQUIREMENTS_TRACE.md)
 
