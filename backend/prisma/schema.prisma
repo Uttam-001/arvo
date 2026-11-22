@@ -1,0 +1,192 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum TicketPriority {
+  URGENT
+  MEDIUM
+  LOW
+}
+
+enum AgentRole {
+  SUPPORT_LEAD
+  SUPPORT_AGENT
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_ON_CUSTOMER
+  RESOLVED
+  CLOSED
+}
+
+enum MessageSenderType {
+  AGENT
+  CUSTOMER
+  SYSTEM
+}
+
+enum MessageVisibility {
+  PUBLIC
+  INTERNAL
+}
+
+enum TicketEventAction {
+  TICKET_CREATED
+  TICKET_CLAIMED
+  ASSIGNMENT_CHANGED
+  PRIORITY_CHANGED
+  STATUS_CHANGED
+  PUBLIC_REPLY_POSTED
+  INTERNAL_NOTE_POSTED
+  CUSTOMER_REPLIED
+  SLA_PAUSED
+  SLA_RESUMED
+  TICKET_RESOLVED
+  TICKET_REOPENED
+  TICKET_AUTO_CLOSED
+}
+
+model Agent {
+  id           String        @id @default(uuid()) @db.VarChar(36)
+  email        String        @unique @db.VarChar(191)
+  name         String        @db.VarChar(120)
+  passwordHash String        @map("password_hash") @db.VarChar(255)
+  isActive     Boolean       @default(true) @map("is_active")
+  role         AgentRole     @default(SUPPORT_AGENT)
+  isDemo       Boolean       @default(false) @map("is_demo")
+  createdAt    DateTime      @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt    DateTime      @updatedAt @map("updated_at") @db.DateTime(3)
+  tickets      Ticket[]      @relation("AssignedTickets")
+  messages     Message[]     @relation("MessageAuthor")
+  events       TicketEvent[] @relation("EventActor")
+  sessions     Session[]
+
+  @@map("agents")
+}
+
+model Session {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  tokenHash String   @unique @map("token_hash") @db.VarChar(64)
+  agentId   String   @map("agent_id") @db.VarChar(36)
+  agent     Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  expiresAt DateTime @map("expires_at") @db.DateTime(3)
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  @@index([agentId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model Ticket {
+  id                    String         @id @default(uuid()) @db.VarChar(36)
+  ticketNumber          String         @unique @map("ticket_number") @db.VarChar(40)
+  customerName          String         @map("customer_name") @db.VarChar(120)
+  customerEmail         String         @map("customer_email") @db.VarChar(191)
+  customerReference     String?        @map("customer_reference") @db.VarChar(191)
+  customerId            String?        @map("customer_id") @db.VarChar(36)
+  customer              Customer?      @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customerTokenHash     String         @map("customer_token_hash") @db.VarChar(64)
+  title                 String         @db.VarChar(255)
+  description           String         @db.Text
+  priority              TicketPriority @default(MEDIUM)
+  status                TicketStatus   @default(OPEN)
+  assignedAgentId       String?        @map("assigned_agent_id") @db.VarChar(36)
+  assignedAgent         Agent?         @relation("AssignedTickets", fields: [assignedAgentId], references: [id], onDelete: SetNull)
+  firstResponseAt       DateTime?      @map("first_response_at") @db.DateTime(3)
+  resolvedAt            DateTime?      @map("resolved_at") @db.DateTime(3)
+  closedAt              DateTime?      @map("closed_at") @db.DateTime(3)
+  slaFirstResponseDueAt DateTime       @map("sla_first_response_due_at") @db.DateTime(3)
+  slaResolutionDueAt    DateTime       @map("sla_resolution_due_at") @db.DateTime(3)
+  slaPausedAt           DateTime?      @map("sla_paused_at") @db.DateTime(3)
+  slaPausedMinutes      Int            @default(0) @map("sla_paused_minutes")
+  waitingSince          DateTime?      @map("waiting_since") @db.DateTime(3)
+  autoCloseDueAt        DateTime?      @map("auto_close_due_at") @db.DateTime(3)
+  reopenUntil           DateTime?      @map("reopen_until") @db.DateTime(3)
+  createdAt             DateTime       @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt             DateTime       @updatedAt @map("updated_at") @db.DateTime(3)
+  messages              Message[]
+  events                TicketEvent[]
+  slaPauses             TicketSlaPause[]
+
+  @@index([status])
+  @@index([assignedAgentId, status])
+  @@index([slaFirstResponseDueAt])
+  @@index([slaResolutionDueAt])
+  @@index([autoCloseDueAt])
+  @@index([customerId])
+  @@map("tickets")
+}
+
+model Customer {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  name      String   @db.VarChar(120)
+  email     String   @unique @db.VarChar(191)
+  company   String   @db.VarChar(191)
+  phone     String?  @db.VarChar(50)
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(3)
+  tickets   Ticket[]
+
+  @@map("customers")
+}
+
+model Message {
+  id         String            @id @default(uuid()) @db.VarChar(36)
+  ticketId   String            @map("ticket_id") @db.VarChar(36)
+  ticket     Ticket            @relation(fields: [ticketId], references: [id], onDelete: Restrict)
+  authorId   String?           @map("author_id") @db.VarChar(36)
+  author     Agent?            @relation("MessageAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  senderType MessageSenderType @map("sender_type")
+  visibility MessageVisibility @default(PUBLIC)
+  body       String            @db.Text
+  createdAt  DateTime          @default(now()) @map("created_at") @db.DateTime(3)
+
+  @@index([ticketId, createdAt])
+  @@index([ticketId, visibility])
+  @@map("messages")
+}
+
+model TicketEvent {
+  id           String            @id @default(uuid()) @db.VarChar(36)
+  ticketId     String            @map("ticket_id") @db.VarChar(36)
+  ticket       Ticket            @relation(fields: [ticketId], references: [id], onDelete: Restrict)
+  actorAgentId String?           @map("actor_agent_id") @db.VarChar(36)
+  actor        Agent?            @relation("EventActor", fields: [actorAgentId], references: [id], onDelete: SetNull)
+  actorLabel   String            @map("actor_label") @db.VarChar(191)
+  action       TicketEventAction
+  details      Json?
+  occurredAt   DateTime          @default(now()) @map("occurred_at") @db.DateTime(3)
+
+  @@index([ticketId, occurredAt])
+  @@map("ticket_events")
+}
+
+model TicketSlaPause {
+  id        String    @id @default(uuid()) @db.VarChar(36)
+  ticketId  String    @map("ticket_id") @db.VarChar(36)
+  ticket    Ticket    @relation(fields: [ticketId], references: [id], onDelete: Restrict)
+  startedAt DateTime  @map("started_at") @db.DateTime(3)
+  endedAt   DateTime? @map("ended_at") @db.DateTime(3)
+  reason    String    @db.VarChar(191)
+  createdAt DateTime  @default(now()) @map("created_at") @db.DateTime(3)
+
+  @@index([ticketId, startedAt])
+  @@map("ticket_sla_pauses")
+}
+
+model Holiday {
+  id          String   @id @default(uuid()) @db.VarChar(36)
+  holidayDate DateTime @unique @map("holiday_date") @db.Date
+  name        String   @db.VarChar(191)
+  createdAt   DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  @@map("holidays")
+}
