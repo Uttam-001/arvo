@@ -1,6 +1,6 @@
-import { AgentRole, PrismaClient } from '@prisma/client';
+import { AgentRole } from '@prisma/client';
+import { prisma } from '../src/lib/prisma.js';
 
-const prisma = new PrismaClient();
 const passwordHashPlaceholder = 'demo-session-only-password-login-disabled';
 
 const team = [
