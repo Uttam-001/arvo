@@ -10,7 +10,8 @@
     }
   },
   "rewrites": [
-    { "source": "/health", "destination": "/api/health" }
+    { "source": "/health", "destination": "/api/frontdesk?frontdeskRoute=health" },
+    { "source": "/api/:path*", "destination": "/api/frontdesk?frontdeskRoute=:path*" }
   ],
   "crons": [
     { "path": "/api/jobs/auto-close", "schedule": "0 13 * * *" }
