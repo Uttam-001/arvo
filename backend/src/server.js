@@ -8,7 +8,7 @@ async function start() {
   await autoCloseWaitingTickets();
   const timer = setInterval(() => autoCloseWaitingTickets().catch((error) => console.error('Auto-close job:', error)), 60_000);
   timer.unref();
-  const server = app.listen(env.port, () => console.log(`Frontdesk running on http://localhost:${env.port}`));
+  const server = app.listen(env.port, () => console.log(`Arvo running on http://localhost:${env.port}`));
   const shutdown = () => server.close(async () => { clearInterval(timer); await disconnectDatabase(); });
   process.once('SIGINT', shutdown);
   process.once('SIGTERM', shutdown);

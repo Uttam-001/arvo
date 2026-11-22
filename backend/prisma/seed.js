@@ -5,7 +5,7 @@ const passwordHashPlaceholder = 'demo-session-only-password-login-disabled';
 
 // Previous fixture addresses identify records already deployed before the refresh.
 const team = [
-  ['meera.iyer@frontdesk.demo','Nandita Rao','nandita.rao@frontdesk.example'],
+  ['meera.iyer@frontdesk.demo','Meera','nandita.rao@frontdesk.example'],
   ['arun.nair@frontdesk.demo','Akhil Suresh','akhil.suresh@frontdesk.example'],
   ['priya.shah@frontdesk.demo','Ritu Banerjee','ritu.banerjee@frontdesk.example'],
   ['neha.kapoor@frontdesk.demo','Sanjana Kurup','sanjana.kurup@frontdesk.example'],

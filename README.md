@@ -1,6 +1,6 @@
-# Frontdesk
+# Arvo
 
-Frontdesk is a full-stack customer support ticket manager built for a hiring assignment. It supports ticket ownership and assignment, public replies, private notes, immutable audit history, and business-hour SLA tracking.
+Arvo is a full-stack customer support ticket manager built for a hiring assignment. It supports ticket ownership and assignment, public replies, private notes, immutable audit history, and business-hour SLA tracking.
 
 **Demo data.** The seed creates fictional accounts and customers for reviewers. It leaves the ticket queue empty. Use fictional ticket subjects, messages, and contact details when trying the app.
 
@@ -116,7 +116,7 @@ Tests leave fixture records in the disposable database because the history trigg
 
 ## Hiring test submission
 
-- **Live URL** [Frontdesk on Vercel](https://frontdesk-deskfront.vercel.app)
+- **Live URL** [Arvo on Vercel](https://frontdesk-support.vercel.app)
 - **Repository** [Uttam-001/frontdesk](https://github.com/Uttam-001/frontdesk)
 - **Completion note** [SUBMISSION_NOTES.md](SUBMISSION_NOTES.md)
 - **Assessment coverage** [REQUIREMENTS_TRACE.md](REQUIREMENTS_TRACE.md)
