@@ -53,7 +53,7 @@ function Login({ onLogin }) {
 }
 
 function Sidebar({ user, section, setSection, stats, onLogout, onCreate }) {
-  return <aside className="sidebar"><div className="brand"><BrandMark/><div className="brand-title">frontdesk<span>SUPPORT HQ</span></div></div><div className="workspace-label">WORKSPACE</div><div className="workspace-card"><div className="workspace-symbol">A</div><div><strong>Arvo Systems</strong><small>Support operations</small></div><span className="workspace-caret">⌄</span></div><div className="sidebar-label">INBOX</div><nav className="side-nav" aria-label="Primary navigation">{menu.map((item) => <button key={item.id} className={`nav-item ${section === item.id ? 'selected' : ''}`} onClick={() => setSection(item.id)}><Icon>{item.glyph}</Icon><span>{item.label}</span>{item.id === 'overdue' && stats?.overdue > 0 && <strong className="nav-count bad">{stats.overdue}</strong>}{item.id === 'waiting' && stats?.waiting > 0 && <strong className="nav-count">{stats.waiting}</strong>}</button>)}</nav>{user.role === 'SUPPORT_LEAD' && <><div className="sidebar-label">MANAGEMENT</div><nav className="side-nav"><button className={`nav-item ${section === 'team' ? 'selected' : ''}`} onClick={() => setSection('team')}><Icon>♙</Icon>Team workload</button><button className={`nav-item ${section === 'customers' ? 'selected' : ''}`} onClick={() => setSection('customers')}><Icon>♧</Icon>Customers</button><button className={`nav-item ${section === 'holidays' ? 'selected' : ''}`} onClick={() => setSection('holidays')}><Icon>▦</Icon>Holidays</button></nav></>}<div className="sidebar-bottom"><div className="sidebar-callout"><div className="callout-glyph">✦</div><strong>Stay ahead of deadlines</strong><p>SLA clocks automatically pause while waiting for customers.</p><button onClick={onCreate}>+ Create a ticket</button></div><button className="account" onClick={onLogout}>{initialsAvatar(user.name, 1)}<span><strong>{user.name}</strong><small>{user.role === 'SUPPORT_LEAD' ? 'Support lead' : 'Support agent'}</small></span><span className="exit" title="Sign out">↪</span></button></div></aside>;
+  return <aside className="sidebar"><div className="brand"><BrandMark/><div className="brand-title">frontdesk<span>SUPPORT HQ</span></div></div><div className="workspace-label">WORKSPACE</div><div className="workspace-card"><div className="workspace-symbol">F</div><div><strong>Frontdesk Support</strong><small>Support operations</small></div></div><div className="sidebar-label">INBOX</div><nav className="side-nav" aria-label="Primary navigation">{menu.map((item) => <button key={item.id} className={`nav-item ${section === item.id ? 'selected' : ''}`} onClick={() => setSection(item.id)}><Icon>{item.glyph}</Icon><span>{item.label}</span>{item.id === 'overdue' && stats?.overdue > 0 && <strong className="nav-count bad">{stats.overdue}</strong>}{item.id === 'waiting' && stats?.waiting > 0 && <strong className="nav-count">{stats.waiting}</strong>}</button>)}</nav>{user.role === 'SUPPORT_LEAD' && <><div className="sidebar-label">MANAGEMENT</div><nav className="side-nav"><button className={`nav-item ${section === 'team' ? 'selected' : ''}`} onClick={() => setSection('team')}><Icon>♙</Icon>Team workload</button><button className={`nav-item ${section === 'customers' ? 'selected' : ''}`} onClick={() => setSection('customers')}><Icon>♧</Icon>Customers</button><button className={`nav-item ${section === 'holidays' ? 'selected' : ''}`} onClick={() => setSection('holidays')}><Icon>▦</Icon>Holidays</button></nav></>}<div className="sidebar-bottom"><div className="sidebar-callout"><div className="callout-glyph">✦</div><strong>Stay ahead of deadlines</strong><p>SLA clocks automatically pause while waiting for customers.</p><button onClick={onCreate}>+ Create a ticket</button></div><div className="account">{initialsAvatar(user.name, 1)}<span><strong>{user.name}</strong><small>{user.role === 'SUPPORT_LEAD' ? 'Support lead' : 'Support agent'}</small></span><button type="button" className="logout-button" onClick={onLogout}>Log out</button></div></div></aside>;
 }
 
 function MetricCards({ stats, onSelect }) {
@@ -121,7 +121,86 @@ function NewTicket({ onClose, onCreated, customers }) {
 }
 
 function TeamPage() { const [items, setItems] = useState([]), [error, setError] = useState(''); useEffect(() => { api.workload().then((d) => setItems(d.workload)).catch((e) => setError(e.message)); }, []); return <section className="management-panel"><div className="panel-heading"><div><h2>Team workload</h2><p>Active ownership and attention-needed tickets across support agents.</p></div></div><ErrorNotice error={error} onClose={() => setError('')}/><div className="table-scroll"><table><thead><tr><th>Agent</th><th>Role</th><th>Active tickets</th><th>Resolved</th><th>Overdue</th></tr></thead><tbody>{items.map((a, i) => <tr key={a.id}><td><div className="table-person">{initialsAvatar(a.name, i)}<strong>{a.name}</strong></div></td><td>{a.role === 'SUPPORT_LEAD' ? 'Lead' : 'Agent'}</td><td>{a.assigned}</td><td>{a.resolved}</td><td><span className={a.overdue ? 'text-danger' : ''}>{a.overdue}</span></td></tr>)}</tbody></table></div></section>; }
-function CustomersPage({ customers, refresh }) { const [show, setShow] = useState(false), [form, setForm] = useState({ name: '', email: '', company: '', phone: '' }), [error, setError] = useState(''); async function submit(e) { e.preventDefault(); try { await api.createCustomer(form); setShow(false); refresh(); } catch (err) { setError(err.message); } } return <section className="management-panel"><div className="panel-heading"><div><h2>Customer directory</h2><p>Organizations and customer contacts.</p></div><button className="btn primary" onClick={() => setShow(true)}>+ Add customer</button></div><div className="table-scroll"><table><thead><tr><th>Customer</th><th>Company</th><th>Email</th><th>Phone</th></tr></thead><tbody>{customers.map((c, i) => <tr key={c.id}><td><div className="table-person">{initialsAvatar(c.name, i)}<strong>{c.name}</strong></div></td><td>{c.company}</td><td>{c.email}</td><td>{c.phone || '—'}</td></tr>)}</tbody></table></div>{show && <Modal title="Add customer" onClose={() => setShow(false)}><ErrorNotice error={error} onClose={() => setError('')}/><form onSubmit={submit} className="new-ticket-form">{['name','email','company','phone'].map((field) => <label className="field" key={field}>{field[0].toUpperCase()+field.slice(1)}<input required={field !== 'phone'} type={field === 'email' ? 'email' : 'text'} value={form[field]} onChange={(e) => setForm((f) => ({ ...f, [field]: e.target.value }))}/></label>)}<button className="btn primary full">Create customer</button></form></Modal>}</section>; }
+function CustomersPage({ customers, refresh }) {
+  const [dialog, setDialog] = useState(null);
+  const [form, setForm] = useState({ name: '', email: '', company: '', phone: '' });
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  const removing = dialog && dialog !== 'add';
+
+  function openDialog(next) {
+    setError('');
+    setDialog(next);
+  }
+
+  async function submit(e) {
+    e.preventDefault();
+    setBusy(true);
+    setError('');
+    try {
+      if (removing) await api.removeCustomer(dialog.id);
+      else {
+        await api.createCustomer(form);
+        setForm({ name: '', email: '', company: '', phone: '' });
+      }
+      setDialog(null);
+      await refresh();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="management-panel">
+      <div className="panel-heading">
+        <div><h2>Customer directory</h2><p>Organizations and customer contacts.</p></div>
+        <button className="btn primary" onClick={() => openDialog('add')}>+ Add customer</button>
+      </div>
+      <div className="table-scroll">
+        <table>
+          <thead><tr><th>Customer</th><th>Company</th><th>Email</th><th>Phone</th><th>Actions</th></tr></thead>
+          <tbody>
+            {customers.map((customer, i) => (
+              <tr key={customer.id}>
+                <td><div className="table-person">{initialsAvatar(customer.name, i)}<strong>{customer.name}</strong></div></td>
+                <td>{customer.company}</td><td>{customer.email}</td><td>{customer.phone || '—'}</td>
+                <td><button type="button" className="customer-remove" aria-label={`Remove ${customer.name}`} onClick={() => openDialog(customer)}>Remove</button></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {dialog && (
+        <Modal title={removing ? 'Remove customer' : 'Add customer'} onClose={() => { if (!busy) setDialog(null); }}>
+          <ErrorNotice error={error} onClose={() => setError('')}/>
+          <form onSubmit={submit} className="new-ticket-form">
+            {removing ? (
+              <>
+                <p className="customer-remove-note">Remove <strong>{dialog.name}</strong> from the customer directory? Existing tickets and their activity history stay available.</p>
+                <div className="modal-footer">
+                  <button type="button" className="btn secondary" disabled={busy} onClick={() => setDialog(null)}>Cancel</button>
+                  <button className="btn danger" disabled={busy}>Remove customer</button>
+                </div>
+              </>
+            ) : (
+              <>
+                {['name', 'email', 'company', 'phone'].map((field) => (
+                  <label className="field" key={field}>
+                    {field[0].toUpperCase() + field.slice(1)}
+                    <input required={field !== 'phone'} type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'} value={form[field]} onChange={(e) => setForm((previous) => ({ ...previous, [field]: e.target.value }))}/>
+                  </label>
+                ))}
+                <button className="btn primary full" disabled={busy}>Create customer</button>
+              </>
+            )}
+          </form>
+        </Modal>
+      )}
+    </section>
+  );
+}
 
 function HolidayPage() { const [items, setItems] = useState([]), [form, setForm] = useState({ name: '', date: '' }), [error, setError] = useState(''), [busy, setBusy] = useState(false); const refresh = () => api.holidays().then((d) => setItems(d.holidays)).catch((e) => setError(e.message)); useEffect(() => { refresh(); }, []); async function add(e) { e.preventDefault(); setBusy(true); try { await api.addHoliday(form); setForm({ name: '', date: '' }); setError(''); refresh(); } catch (e) { setError(e.message); } finally { setBusy(false); } } return <section className="management-panel"><div className="panel-heading"><div><h2>Business holiday calendar</h2><p>Dates entered here are excluded from future SLA and customer-wait calculations. Update ahead of time.</p></div></div><ErrorNotice error={error} onClose={() => setError('')}/><form className="holiday-form" onSubmit={add}><label className="field">Holiday name<input required placeholder="Festival / public holiday" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}/></label><label className="field">Date<input required type="date" value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}/></label><button className="btn primary" disabled={busy}>+ Add holiday</button></form><div className="table-scroll"><table><thead><tr><th>Date</th><th>Holiday</th></tr></thead><tbody>{items.map((h) => <tr key={h.id}><td>{h.holidayDate?.slice(0,10)}</td><td>{h.name}</td></tr>)}</tbody></table></div></section>; }
 
@@ -157,7 +236,18 @@ export default function App() {
   useEffect(() => { if (user) { load(); api.agents().then((d) => setAgents(d.agents)).catch((e) => setError(e.message)); refreshDirectory(); } }, [user, load, refreshDirectory]);
   const open = async (id) => { setSelectedId(id); try { setSelected(await api.ticket(id)); } catch (e) { setError(e.message); } };
   const action = async (method, ...args) => { setBusy(true); setError(''); try { const result = await api[method](...args); await Promise.all([load(), open(args[0])]); return result; } finally { setBusy(false); } };
-  async function logout() { try { await api.logout(); } catch (e) { setError(e.message); } setUser(null); setSelected(null); }
+  async function logout() {
+    try {
+      await api.logout();
+      setUser(null);
+      setSection('all');
+      setPage(1);
+      setSelected(null);
+      setSelectedId(null);
+    } catch (e) {
+      setError(e.message);
+    }
+  }
   const heading = useMemo(() => ({ all: 'Ticket inbox', mine: 'My tickets', unassigned: 'Unassigned', waiting: 'Waiting on customer', overdue: 'Overdue tickets', team: 'Team workload', customers: 'Customers', holidays: 'Holiday calendar' })[section], [section]);
   if (ticketNumber && token) return <CustomerPortal ticketNumber={ticketNumber} token={token}/>;
   if (initializing) return <div className="splash"><Spinner/>Loading workspace…</div>;

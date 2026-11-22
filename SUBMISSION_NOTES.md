@@ -1,8 +1,8 @@
 # Completion note
 
-- **Repository** [Uttam-001/frontdesk-remake](https://github.com/Uttam-001/frontdesk-remake)
+- **Repository** [Uttam-001/frontdesk](https://github.com/Uttam-001/frontdesk)
 - **Local setup** [README](README.md)
-- **Live application** [Frontdesk on Vercel](https://frontdesk-remake.vercel.app)
+- **Live application** [Frontdesk on Vercel](https://frontdesk-deskfront.vercel.app)
 
 The frontend production build, MySQL migrations and seed, demo sign-in for both roles, and automated SLA and MySQL tests passed locally. The tests cover concurrent claims, protection of internal notes, immutable audit history, waiting and auto-close, and the customer reopening window.
 

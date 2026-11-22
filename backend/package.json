@@ -1,5 +1,5 @@
 {
-  "name": "frontdesk-remake-api",
+  "name": "frontdesk-api",
   "version": "2.0.0",
   "private": true,
   "type": "module",
@@ -30,7 +30,6 @@
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
-    "frontdesk-remake": "file:..",
     "luxon": "^3.6.1"
   },
   "devDependencies": {

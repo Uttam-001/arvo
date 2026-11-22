@@ -42,6 +42,7 @@ export const api = {
   holidays: () => request('/holidays'),
   addHoliday: (body) => request('/holidays', { method: 'POST', body }),
   createCustomer: (body) => request('/customers', { method: 'POST', body }),
+  removeCustomer: (id) => request(`/customers/${encodeURIComponent(id)}`, { method: 'DELETE' }),
   customerTicket: (number, token) => request(`/public/tickets/${encodeURIComponent(number)}`, { customerToken: token }),
   customerReply: (number, token, body) => request(`/public/tickets/${encodeURIComponent(number)}/replies`, { method: 'POST', customerToken: token, body: { body } }),
   customerReopen: (number, token) => request(`/public/tickets/${encodeURIComponent(number)}/reopen`, { method: 'POST', customerToken: token })

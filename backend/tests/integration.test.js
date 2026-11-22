@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { app } from '../src/app.js';
 import { prisma } from '../src/lib/prisma.js';
@@ -66,6 +67,34 @@ test('waiting time-out auto-closes, rejects reopening', { skip: process.env.RUN_
   await autoCloseWaitingTickets(due);
   assert.equal((await getTicket(ticket.id)).status, 'CLOSED');
   await assert.rejects(() => reopenTicket(ticket.id, lead), /Only resolved tickets/);
+});
+
+test('a lead can remove a directory customer while linked tickets keep their history', { skip: process.env.RUN_DB_TESTS !== '1' }, async () => {
+  const lead = await prisma.agent.findFirstOrThrow({ where: { role: 'SUPPORT_LEAD', isDemo: true } });
+  const agent = await prisma.agent.findFirstOrThrow({ where: { role: 'SUPPORT_AGENT', isDemo: true } });
+  const customer = await prisma.customer.create({ data: {
+    name: 'Directory removal test', email: `qa-${randomUUID()}@example.test`, company: 'Test Company'
+  } });
+  const { ticket } = await createTicket({ title: 'Customer removal test', description: 'Keep this history', customerId: customer.id }, lead);
+  const path = `/api/customers/${customer.id}`;
+
+  async function session(user) {
+    const client = request.agent(app);
+    const { body: { csrfToken } } = await client.get('/api/auth/csrf').expect(200);
+    await client.post('/api/auth/demo').set('X-CSRF-Token', csrfToken).send({ email: user.email }).expect(200);
+    return { client, csrfToken };
+  }
+
+  const agentSession = await session(agent);
+  await agentSession.client.delete(path).set('X-CSRF-Token', agentSession.csrfToken).expect(403);
+  const leadSession = await session(lead);
+  await leadSession.client.delete(path).expect(403);
+  await leadSession.client.delete(path).set('X-CSRF-Token', leadSession.csrfToken).expect(204);
+  await leadSession.client.delete(path).set('X-CSRF-Token', leadSession.csrfToken).expect(404);
+  const remainingTicket = await getTicket(ticket.id);
+  assert.equal(remainingTicket.customerId, null);
+  assert.equal(remainingTicket.customerEmail, customer.email);
+  assert(remainingTicket.events.some(event => event.action === 'TICKET_CREATED'));
 });
 
 test('scheduled sweep requires its configured secret', async (t) => {

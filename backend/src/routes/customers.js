@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { prisma } from '../lib/prisma.js';
 import { HttpError, route, requiredText } from '../lib/errors.js';
-import { requireAuth } from '../middleware/agentAuth.js';
+import { requireAuth, requireLead } from '../middleware/agentAuth.js';
 export const customerRouter = Router();
 customerRouter.use(requireAuth);
 customerRouter.get('/', route(async (req, res) => {
@@ -17,4 +17,9 @@ customerRouter.post('/', route(async (req, res) => {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new HttpError(422, 'Invalid email address.');
   const customer = await prisma.customer.create({ data: { name, email, company, phone: req.body?.phone || null } });
   res.status(201).json(customer);
+}));
+customerRouter.delete('/:id', requireLead, route(async (req, res) => {
+  const result = await prisma.customer.deleteMany({ where: { id: req.params.id } });
+  if (!result.count) throw new HttpError(404, 'Customer not found.');
+  res.sendStatus(204);
 }));

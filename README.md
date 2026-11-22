@@ -57,7 +57,7 @@ If MySQL rejects trigger creation with error 1419, ask the database provider or 
 
 ## Authentication and API security
 
-- **Support Lead** can assign tickets, manage the holiday calendar, view workload, and perform ticket actions.
+- **Support Lead** can assign tickets, manage the holiday calendar, view workload, remove customer directory entries, and perform ticket actions. Removing a directory entry preserves its existing tickets and audit history.
 - **Support Agent** can view the shared inbox, claim an unassigned ticket, and edit tickets assigned to them. Claiming uses an atomic update to prevent two agents taking the same ticket.
 - **Sessions** use opaque tokens stored as hashes in MySQL. Both the session and CSRF cookies use `HttpOnly` and `SameSite=Lax`, with `Secure` in production. The frontend gets its CSRF token from `/api/auth/csrf` and sends it in `X-CSRF-Token` for state-changing requests. The server checks it against the cookie.
 - **Same-origin requests** use the Vite proxy locally. The Vercel configuration serves the frontend and API on the same origin.
@@ -116,8 +116,8 @@ Tests leave fixture records in the disposable database because the history trigg
 
 ## Hiring test submission
 
-- **Live URL** [Frontdesk on Vercel](https://frontdesk-remake.vercel.app)
-- **Repository** [Uttam-001/frontdesk-remake](https://github.com/Uttam-001/frontdesk-remake)
+- **Live URL** [Frontdesk on Vercel](https://frontdesk-deskfront.vercel.app)
+- **Repository** [Uttam-001/frontdesk](https://github.com/Uttam-001/frontdesk)
 - **Completion note** [SUBMISSION_NOTES.md](SUBMISSION_NOTES.md)
 - **Assessment coverage** [REQUIREMENTS_TRACE.md](REQUIREMENTS_TRACE.md)
 
