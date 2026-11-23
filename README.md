@@ -1,10 +1,8 @@
 # Arvo
 
-Arvo is a full-stack customer support ticket manager built for a hiring assignment. It supports ticket ownership and assignment, public replies, private notes, immutable audit history, and business-hour SLA tracking.
+Arvo is a customer support ticketing app with a shared agent inbox, a customer portal, and SLA tracking that follows working hours. Support teams can assign and claim tickets, send public replies, add private notes, and review each ticket's activity history.
 
 Open the live demo and select **Meera** for the support lead view, or choose any of the nine support agents. [Arvo live demo](https://frontdesk-support.vercel.app/)
-
-**Demo data.** The seed creates fictional accounts and customers for reviewers. It leaves the ticket queue empty. Use fictional ticket subjects, messages, and contact details when trying the app.
 
 ## Stack
 
@@ -47,15 +45,13 @@ On Windows PowerShell, use `npm.cmd` instead of `npm` if the shell blocks the np
 
 To check the production build locally, stop the development API, run `npm run build` followed by `npm start`, and open [the bundled app](http://localhost:4000).
 
-## Fictional reviewer data
+## Demo workflow
 
-`npm run db:seed` creates one support lead, nine agents, 26 fictional customers, and sample holidays. The seed upserts demo accounts and customers, so rerun it only on a demo database. To try the full workflow, create a fictional ticket from the agent dashboard and open its customer link in a separate browser session.
+`npm run db:seed` creates one support lead, nine agents, 26 fictional customers, and sample holidays. The ticket queue starts empty. Run the seed only against a demo database because it upserts demo accounts and customers.
 
-### Reviewer walkthrough
-
-1. Sign in as **Meera**, the support lead, to assign a ticket or manage the **Customers** directory. Open a ticket to review the **Conversation** or **Activity log**.
+1. Sign in and create a ticket for a fictional customer. Claim it as an agent or assign it as **Meera**, the support lead.
 2. Choose **Public reply** to respond to the customer or **Internal note** to record a team-only update. The two compose modes keep separate drafts.
-3. In **Customers**, choose **Remove** beside an entry and confirm. The directory entry is removed, and existing tickets and their audit history stay available.
+3. Open the ticket customer link in a separate browser session to view public replies and respond as the customer. Check the **Activity log** in the agent workspace to see the ticket history.
 4. Use **Log out** in the Arvo Support sidebar to switch demo roles.
 
 ## Database migrations
@@ -120,15 +116,17 @@ Tests leave fixture records in the disposable database because the history trigg
 
 1. Provision a dedicated hosted MySQL 8 demo database that requires TLS and supports the migration's triggers. Follow the provider's certificate verification instructions. Where supported, use a migration account with schema permissions and a separate, least-privileged runtime account.
 2. From a trusted terminal, set `DATABASE_URL` to the hosted demo database and run `npm run db:prepare` using the provider's strict TLS settings. Store the runtime `DATABASE_URL` and a strong, randomly generated `CRON_SECRET` in Vercel's server-side environment settings. For Railway's generated MySQL certificate, the runtime can verify an authenticated copy of the provider's CA and pin the exact server certificate. Set `DATABASE_CA_PEM` and `DATABASE_TLS_FINGERPRINT` together using the CA PEM and SHA-256 certificate fingerprint obtained through the provider's authenticated dashboard or CLI. Refresh the pin after a certificate rotation. Keep database credentials out of Git and client-side `VITE_*` variables.
-3. Import the repository root into Vercel. The checked-in configuration builds the frontend for the CDN and routes API requests to one Node.js function. Enable `DEMO_MODE_ENABLED=true` only for the isolated reviewer demo. Keep the deployment over HTTPS.
-4. Verify `/health`, both demo roles, ticket creation, and customer access before sharing the public HTTPS URL. Share only the application URL and keep the app and database available for one week after submission.
+3. Import the repository root into Vercel. The checked-in configuration builds the frontend for the CDN and routes API requests to one Node.js function. Enable `DEMO_MODE_ENABLED=true` only for the isolated demo. Keep the deployment over HTTPS.
+4. Verify `/health`, both demo roles, ticket creation, and customer access before sharing the public HTTPS URL.
 
-## Hiring test submission
+## Project structure
 
-- **Live URL** [Arvo on Vercel](https://frontdesk-support.vercel.app)
-- **Repository** [Uttam-001/arvo](https://github.com/Uttam-001/arvo)
-- **Completion note** [SUBMISSION_NOTES.md](SUBMISSION_NOTES.md)
-- **Assessment coverage** [REQUIREMENTS_TRACE.md](REQUIREMENTS_TRACE.md)
+- [frontend/](frontend/) contains the agent workspace and customer portal.
+- [backend/src/](backend/src/) contains the Express API and ticket workflow.
+- [backend/prisma/](backend/prisma/) contains the schema, migrations, and demo seed.
+- [api/](api/) contains the Vercel API entry point.
+
+See [Architecture](ARCHITECTURE.md) for implementation details and [Deployment checks](DEPLOYMENT_CHECKS.md) for the hosted demo checklist.
 
 ## Known limitations
 

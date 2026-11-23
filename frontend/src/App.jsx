@@ -46,7 +46,7 @@ function Login({ onLogin }) {
           </label>
           <button className="btn primary full" disabled={busy || !email}>{busy ? <Spinner/> : 'Enter workspace'}</button>
         </form>
-        <div className="demo-note">Demo login is available for the hiring assessment.</div>
+        <div className="demo-note">Choose a demo account to explore the workspace.</div>
       </section>
     </main>
   );
